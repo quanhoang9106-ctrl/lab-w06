@@ -4,44 +4,45 @@ namespace LabW06;
 public class BorrowingException : Exception
 {
     public BorrowingException(string message) : base(message) { }
+
     public BorrowingException(string message, Exception innerException)
         : base(message, innerException) { }
 }
 
-public class DeviceUnavailableException : BorrowingException
+public sealed class DeviceUnavailableException : BorrowingException
 {
     public string DeviceId { get; }
     public DeviceStatus CurrentStatus { get; }
 
     public DeviceUnavailableException(string deviceId, DeviceStatus status)
-        : base($"Thiet bi {deviceId} khong san sang (trang thai: {status}).")
+        : base($"Thiết bị {deviceId} không sẵn sàng (trạng thái: {status}).")
     {
         DeviceId = deviceId;
         CurrentStatus = status;
     }
 }
 
-public class BorrowLimitExceededException : BorrowingException
+public sealed class BorrowLimitExceededException : BorrowingException
 {
     public string BorrowerId { get; }
     public int MaximumDevices { get; }
 
     public BorrowLimitExceededException(string borrowerId, int maximumDevices)
-        : base($"Nguoi muon {borrowerId} chi duoc muon toi da {maximumDevices} thiet bi.")
+        : base($"Người mượn {borrowerId} chỉ được mượn tối đa {maximumDevices} thiết bị.")
     {
         BorrowerId = borrowerId;
         MaximumDevices = maximumDevices;
     }
 }
 
-public class InvalidBorrowPeriodException : BorrowingException
+public sealed class InvalidBorrowPeriodException : BorrowingException
 {
     public string DeviceId { get; }
     public int RequestedDays { get; }
     public int MaximumDays { get; }
 
     public InvalidBorrowPeriodException(string deviceId, int requestedDays, int maximumDays)
-        : base($"Thoi han {requestedDays} ngay khong hop le cho {deviceId} (toi da {maximumDays} ngay).")
+        : base($"Thời hạn {requestedDays} ngày không hợp lệ cho {deviceId} (tối đa {maximumDays} ngày).")
     {
         DeviceId = deviceId;
         RequestedDays = requestedDays;
@@ -49,32 +50,64 @@ public class InvalidBorrowPeriodException : BorrowingException
     }
 }
 
-public class DuplicateDeviceException : BorrowingException
+// TỐI ƯU: Lưu mã thiết bị vào thuộc tính để tiện kiểm tra lỗi.
+public sealed class DuplicateDeviceException : BorrowingException
 {
+    public string DeviceId { get; }
+
     public DuplicateDeviceException(string deviceId)
-        : base($"Thiet bi {deviceId} da ton tai trong danh sach.") { }
+        : base($"Thiết bị {deviceId} đã có trong danh sách.")
+    {
+        DeviceId = deviceId;
+    }
 }
 
-public class DeviceNotInSlipException : BorrowingException
+public sealed class DeviceNotInSlipException : BorrowingException
 {
+    public string DeviceId { get; }
+
     public DeviceNotInSlipException(string deviceId)
-        : base($"Thiet bi {deviceId} khong thuoc phieu muon.") { }
+        : base($"Thiết bị {deviceId} không thuộc phiếu mượn.")
+    {
+        DeviceId = deviceId;
+    }
 }
 
-public class DeviceAlreadyReturnedException : BorrowingException
+public sealed class DeviceAlreadyReturnedException : BorrowingException
 {
+    public string DeviceId { get; }
+
     public DeviceAlreadyReturnedException(string deviceId)
-        : base($"Thiet bi {deviceId} da duoc tra truoc do.") { }
+        : base($"Thiết bị {deviceId} đã được trả trước đó.")
+    {
+        DeviceId = deviceId;
+    }
 }
 
-public class InvalidReturnDateException : BorrowingException
+public sealed class InvalidReturnDateException : BorrowingException
 {
-    public InvalidReturnDateException(DateTime borrowDate, DateTime returnDate)
-        : base($"Ngay tra {returnDate:dd/MM/yyyy} truoc ngay muon {borrowDate:dd/MM/yyyy}.") { }
+    public DateTime BorrowedDate { get; }
+    public DateTime ReturnedDate { get; }
+
+    public InvalidReturnDateException(DateTime borrowedDate, DateTime returnedDate)
+        : base($"Ngày trả {returnedDate:dd/MM/yyyy} trước ngày mượn {borrowedDate:dd/MM/yyyy}.")
+    {
+        BorrowedDate = borrowedDate;
+        ReturnedDate = returnedDate;
+    }
 }
 
-public class InvalidLessonPeriodException : BorrowingException
+public sealed class InvalidLessonPeriodException : BorrowingException
 {
+    public int FromPeriod { get; }
+    public int ToPeriod { get; }
+    public int MaximumPeriods { get; }
+
     public InvalidLessonPeriodException(int fromPeriod, int toPeriod, int maximumPeriods)
-        : base($"Khoang tiet {fromPeriod}-{toPeriod} khong hop le (toi da {maximumPeriods} tiet).") { }
+        : base($"Khoảng tiết {fromPeriod}-{toPeriod} không hợp lệ (tối đa {maximumPeriods} tiết).")
+    {
+        FromPeriod = fromPeriod;
+        ToPeriod = toPeriod;
+        MaximumPeriods = maximumPeriods;
+    }
 }
