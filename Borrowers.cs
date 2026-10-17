@@ -1,55 +1,47 @@
 
 namespace LabW06;
 
-public class ClassRoom
+public interface IBorrower
 {
-    public string RoomId { get; }
-    public string RoomName { get; }
-    public int Capacity { get; }
+    string BorrowerId { get; }
+    string FullName { get; }
+    int GetMaximumDevices();
+}
 
-    private readonly List<Device> _devices = new();
+public class Lecturer : IBorrower
+{
+    public string BorrowerId { get; }
+    public string FullName { get; }
 
-    public ClassRoom(string roomId, string roomName, int capacity)
+    public Lecturer(string borrowerId, string fullName)
     {
-        RoomId = roomId;
-        RoomName = roomName;
-        Capacity = capacity;
+        if (string.IsNullOrWhiteSpace(borrowerId))
+            throw new ArgumentException("Ma nguoi muon khong hop le.", nameof(borrowerId));
+        if (string.IsNullOrWhiteSpace(fullName))
+            throw new ArgumentException("Ho ten khong hop le.", nameof(fullName));
+
+        BorrowerId = borrowerId.Trim();
+        FullName = fullName.Trim();
     }
 
-    public void AddDevice(Device device)
+    public int GetMaximumDevices() => 3;
+}
+
+public class TeachingAssistant : IBorrower
+{
+    public string BorrowerId { get; }
+    public string FullName { get; }
+
+    public TeachingAssistant(string borrowerId, string fullName)
     {
-        _devices.Add(device);
+        if (string.IsNullOrWhiteSpace(borrowerId))
+            throw new ArgumentException("Ma nguoi muon khong hop le.", nameof(borrowerId));
+        if (string.IsNullOrWhiteSpace(fullName))
+            throw new ArgumentException("Ho ten khong hop le.", nameof(fullName));
+
+        BorrowerId = borrowerId.Trim();
+        FullName = fullName.Trim();
     }
 
-    public bool RemoveDevice(string deviceId)
-    {
-        Device? device = FindDevice(deviceId);
-        if (device == null) return false;
-        return _devices.Remove(device);
-    }
-
-    public Device? FindDevice(string deviceId)
-    {
-        return _devices.FirstOrDefault(device => device.DeviceId == deviceId);
-    }
-
-    public decimal CalculateAnnualMaintenanceCost()
-    {
-        decimal total = 0;
-        foreach (Device device in _devices)
-        {
-            if (device is AirConditionerRemote)
-                total += device.PurchasePrice * 0.05m;
-            else if (device is Microphone)
-                total += device.PurchasePrice * 0.03m;
-            else if (device is ProjectorRemote)
-                total += device.PurchasePrice * 0.04m;
-        }
-        return total;
-    }
-
-    public List<Device> GetDevicesRequiringMaintenance()
-    {
-        return _devices.Where(device => device.Status == DeviceStatus.UnderMaintenance).ToList();
-    }
+    public int GetMaximumDevices() => 2;
 }
